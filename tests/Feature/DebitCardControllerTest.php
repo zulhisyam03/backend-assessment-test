@@ -140,7 +140,7 @@ class DebitCardControllerTest extends TestCase
             $debitCard = DebitCard::factory()->create([
                 'user_id' => $this->user->id,
                 'disabled_at' => null,
-                'number' => rand(1000000000000000, 9999999999999999), // Gunakan 9 digit untuk menghindari overflow
+                'number' => rand(1000000000, 2147483647), // Gunakan 9 digit untuk menghindari overflow
             ]);
 
             $response = $this->getJson("/api/debit-cards/{$debitCard->id}");
