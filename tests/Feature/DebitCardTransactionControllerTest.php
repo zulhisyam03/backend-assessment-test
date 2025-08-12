@@ -143,6 +143,34 @@ class DebitCardTransactionControllerTest extends TestCase
     public function testCustomerCanSeeADebitCardTransaction()
     {
         // get /debit-card-transactions/{debitCardTransaction}
+        $this->skipIfNoDebitCard();
+        try {
+            // Buat transaksi untuk debit card user yang login
+            $transaction = DebitCardTransaction::factory()->create([
+                'debit_card_id' => $this->debitCard->id,
+                'amount' => 75000,
+                'currency_code' => DebitCardTransaction::CURRENCY_IDR,
+            ]);
+
+            $response = $this->getJson("/api/debit-card-transactions/{$transaction->id}");
+
+            // Debug response untuk melihat struktur sebenarnya
+            // dd($response->json());
+
+            // Verifikasi response sukses dan data sesuai dengan struktur aktual
+            $response->assertStatus(200)
+                ->assertJson([
+                    'amount' => 75000,
+                    'currency_code' => DebitCardTransaction::CURRENCY_IDR,
+                ]);
+
+            // Verifikasi tambahan jika diperlukan
+            $responseData = $response->json();
+            $this->assertEquals(75000, $responseData['amount']);
+            $this->assertEquals(DebitCardTransaction::CURRENCY_IDR, $responseData['currency_code']);
+        } catch (QueryException $e) {
+            $this->handleDatabaseError($e);
+        }
     }
 
     public function testCustomerCannotSeeADebitCardTransactionAttachedToOtherCustomerDebitCard()
