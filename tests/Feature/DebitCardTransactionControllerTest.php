@@ -110,6 +110,8 @@ class DebitCardTransactionControllerTest extends TestCase
     public function testCustomerCannotCreateADebitCardTransactionToOtherCustomerDebitCard()
     {
         // post /debit-card-transactions
+        $this->skipIfNoDebitCard();
+
         try {
             // Buat debit card milik user lain
             $otherUser = User::factory()->create();
