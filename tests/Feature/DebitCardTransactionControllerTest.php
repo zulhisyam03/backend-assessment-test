@@ -44,10 +44,8 @@ class DebitCardTransactionControllerTest extends TestCase
     public function testCustomerCanSeeAListOfDebitCardTransactions()
     {
         // get /debit-card-transactions
-        if (!$this->debitCard) {
-            $this->markTestSkipped('Debit card not created due to number overflow');
-            return;
-        }
+        $this->skipIfNoDebitCard();
+        
         try {
             $transactions = DebitCardTransaction::factory()
                 ->count(2)
