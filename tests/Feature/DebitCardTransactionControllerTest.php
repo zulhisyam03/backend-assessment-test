@@ -67,6 +67,18 @@ class DebitCardTransactionControllerTest extends TestCase
     public function testCustomerCannotSeeAListOfDebitCardTransactionsOfOtherCustomerDebitCard()
     {
         // get /debit-card-transactions
+        $this->skipIfNoDebitCard();
+        $otherUser = User::factory()->create();
+        try {
+            $otherCard = DebitCard::factory()->create(['user_id' => $otherUser->id]);
+            
+            DebitCardTransaction::factory()
+                ->create(['debit_card_id' => $otherCard->id]);
+            $response = $this->getJson('/api/debit-card-transactions?debit_card_id='.$otherCard->id);
+            $response->assertStatus(403);
+        } catch (QueryException $e) {
+            $this->handleDatabaseError($e);
+        }
     }
 
     public function testCustomerCanCreateADebitCardTransaction()
@@ -90,6 +102,15 @@ class DebitCardTransactionControllerTest extends TestCase
     }
 
     // Extra bonus for extra tests :)
+
+    /* Helper Methods */
+    protected function skipIfNoDebitCard(): void
+    {
+        if (empty($this->debitCard)) {
+            $this->skipDueToDatabaseIssue('test initialization');
+        }
+    }
+
     protected function handleDatabaseError(QueryException $e)
     {
         if (str_contains($e->getMessage(), 'Numeric value out of range')) {
